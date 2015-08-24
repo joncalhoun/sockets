@@ -1,0 +1,21 @@
+<h1>Test page</h1>
+
+<script>
+  var pub;
+  var connection = new WebSocket("ws://localhost:3000/ws?channel=" + encodeURIComponent("test-channel"));
+  console.log("on channel test-channel")
+  connection.onmessage = function(e) {
+    // Crap gets double encoded for some reason.. ignoring for now.
+    var json = JSON.parse(JSON.parse(e.data));
+    console.log(json)
+    pub = e;
+    document.write("<pre>" + json + "</pre>");
+    document.write("<br><b>Type: </b>" + json.type);
+    document.write("<br><b>Id: </b>" + json.id);
+    document.write("<br><b>Message: </b>" + json.message);
+  }
+  connection.onclose = function() {
+    alert("Disconnected from websocket server.");
+  }
+</script>
+
