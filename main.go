@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,6 +21,7 @@ func main() {
 	server = webjack.NewServer()
 	http.Handle("/ws", server.GetHandler())
 	http.HandleFunc("/msg", messageHandler)
+	http.HandleFunc("/stats", statsHandler)
 	http.Handle("/", http.FileServer(http.Dir("public")))
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
@@ -39,4 +41,9 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 		err = decoder.Decode(msg, r.PostForm)
 		server.SendChannel(msg.Message, msg.Channel)
 	}
+}
+
+func statsHandler(w http.ResponseWriter, r *http.Request) {
+	out, _ := json.Marshal(server.ConnectionsPerChannel())
+	w.Write(out)
 }
